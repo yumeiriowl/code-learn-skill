@@ -20,6 +20,29 @@ A pair of agent skills focused on making code understandable. One turns a techni
 
 Both are [Agent Skills](https://agentskills.io) — a `SKILL.md` with `name` / `description` front matter plus body, with detailed specs separated into `reference/`. Each skill produces its output in the language of your request.
 
+## 🔗 How the two skills fit together
+
+The skills can be chained: turn a concept into runnable learning code, then turn that code into a single readable HTML.
+
+```
+Technology you want to learn (e.g. an agent harness)
+        │
+        ▼   ① staged-learning-code skill
+        │      Turns the topic into "learning code you can build and run"
+   ┌────────────────────────────────────────────────┐
+   │ Staged material (one folder per element)        │  ← each folder runs on its own
+   └────────────────────────────────────────────────┘
+        │
+        ▼   ② code-walkthrough skill
+        │      Turns the material into "one HTML you can read and understand"
+   ┌────────────────────────────────────────────────┐
+   │ A single explanatory HTML                       │  ← all files as tabs / code + commentary + glossary
+   └────────────────────────────────────────────────┘
+        │
+        ▼
+   Open in a browser
+```
+
 ## 🚀 Quick Start
 
 Clone the repo and copy the skills into your skills directory (`~/.claude/skills/` for Claude Code; use your tool's equivalent):
