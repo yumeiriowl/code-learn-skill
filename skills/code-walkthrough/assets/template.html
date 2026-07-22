@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<!--
+  code-walkthrough template. Fill the placeholders, do not rewrite the CSS/JS.
+
+  1. Replace {{LANG}} and {{TITLE}}.
+  2. Translate every UI label marked with "UI-LABEL" into the request language.
+  3. Single-file mode: delete the block marked "MULTI-FILE ONLY" and keep the CSS
+     variable tabs-h at 0px. Multi-file mode: fill that block, wrap segments in tab
+     panels (see reference/multi-file-tabs.md), and set tabs-h to 44px.
+  4. Insert segments at "SEGMENTS INSERTION POINT" (markup: reference/html-layout.md).
+  5. Insert static TOC links at "TOC INSERTION POINT".
+  6. Register every underlined term in GLOSSARY (keys always in quotes).
+-->
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<style>
+:root {
+  --header-h: 60px;
+  --tabs-h: 0px; /* MULTI-FILE: 44px */
+  --top-offset: calc(var(--header-h) + var(--tabs-h));
+  /* Light mode (default) */
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f9f9f9;
+  --fg-primary: #333333;
+  --fg-secondary: #666666;
+  --border-color: #e0e0e0;
+  --syntax-keyword: #d73a49;
+  --syntax-string: #032f62;
+  --syntax-comment: #6a737d;
+  --syntax-number: #005cc5;
+  --syntax-function: #6f42c1;
+  --syntax-builtin: #005a9c;
+  --syntax-decorator: #d08770;
+  --syntax-operator: #24292e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #282c34;
+    --bg-secondary: #21252b;
+    --bg-tertiary: #1e1e1e;
+    --fg-primary: #abb2bf;
+    --fg-secondary: #828997;
+    --border-color: #3e4451;
+    --syntax-keyword: #c678dd;
+    --syntax-string: #98c379;
+    --syntax-comment: #5c6370;
+    --syntax-number: #d19a66;
+    --syntax-function: #61afef;
+    --syntax-builtin: #56b6c2;
+    --syntax-decorator: #e5c07b;
+    --syntax-operator: #abb2bf;
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  padding-top: var(--top-offset);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans", sans-serif;
+  background: var(--bg-primary);
+  color: var(--fg-primary);
+}
+
+/* Progress bar */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0;
+  background: var(--syntax-function); z-index: 1000;
+}
+
+/* Header */
+.header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 0 16px; z-index: 999;
+  background: var(--bg-secondary); border-bottom: 1px solid var(--border-color);
+}
+.header h1 { margin: 0; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header-controls { display: flex; gap: 6px; flex-wrap: nowrap; }
+.header-controls button {
+  padding: 5px 10px; font-size: 12px; cursor: pointer;
+  background: var(--bg-tertiary); color: var(--fg-primary);
+  border: 1px solid var(--border-color); border-radius: 4px; white-space: nowrap;
+}
+.header-controls button.active { background: var(--syntax-function); color: #fff; border-color: var(--syntax-function); }
+.hamburger { display: none; }
+
+/* MULTI-FILE ONLY: tab bar */
+.tabs {
+  position: fixed; top: var(--header-h); left: 0; right: 0; height: var(--tabs-h);
+  display: flex; gap: 8px; align-items: center; padding: 0 16px; z-index: 998;
+  background: var(--bg-secondary); border-bottom: 1px solid var(--border-color);
+}
+.tab {
+  padding: 6px 14px; cursor: pointer; font-size: 13px; font-weight: 600;
+  background: var(--bg-tertiary); color: var(--fg-secondary);
+  border: 1px solid var(--border-color); border-radius: 4px 4px 0 0;
+  border-bottom: 3px solid transparent;
+}
+.tab.active { background: var(--bg-primary); color: var(--fg-primary); border-bottom-color: var(--syntax-function); }
+.tab .tab-meta { color: var(--fg-secondary); font-weight: normal; font-size: 11px; margin-left: 6px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.toc-group { display: none; }
+.toc-group.active { display: block; }
+.intro {
+  background: var(--bg-secondary); border: 1px solid var(--border-color);
+  border-radius: 6px; padding: 16px 20px; margin-bottom: 24px;
+}
+.intro h2 { margin: 0 0 8px; font-size: 17px; }
+.intro p { margin: 6px 0; font-size: 14px; }
+
+/* Sidebar TOC (fixed so it does not scroll with the body) */
+.sidebar {
+  position: fixed; top: var(--top-offset); left: 0;
+  width: 280px; height: calc(100vh - var(--top-offset));
+  overflow-y: auto; padding: 12px; z-index: 100;
+  background: var(--bg-secondary); border-right: 1px solid var(--border-color);
+}
+.sidebar.hidden { display: none; }
+.sidebar h3 { margin: 4px 8px 10px; font-size: 13px; color: var(--fg-secondary); }
+.toc-link {
+  display: block; padding: 5px 10px; margin-bottom: 2px; border-radius: 4px;
+  font-size: 12.5px; color: var(--fg-primary); text-decoration: none;
+  border-left: 3px solid transparent;
+}
+.toc-link:hover { background: var(--bg-tertiary); }
+.toc-link.active { background: var(--bg-tertiary); font-weight: 600; }
+.toc-link-imports   { border-left-color: #61afef; }
+.toc-link-constants { border-left-color: #d19a66; }
+.toc-link-types     { border-left-color: #c678dd; }
+.toc-link-class     { border-left-color: #e5c07b; }
+.toc-link-function  { border-left-color: #98c379; }
+.toc-link-main      { border-left-color: #e06c75; }
+.toc-link-config    { border-left-color: #56b6c2; }
+.toc-link-other     { border-left-color: #abb2bf; }
+
+/* Main */
+.main { margin-left: 280px; padding: 24px; }
+.main.toc-hidden { margin-left: 0; }
+.main.glossary-open { margin-right: 340px; transition: margin-right 0.3s ease-out; }
+
+/* Segment */
+.segment {
+  background: var(--bg-secondary); border: 1px solid var(--border-color);
+  border-radius: 8px; margin-bottom: 24px;
+  scroll-margin-top: calc(var(--top-offset) + 8px); /* anchor jumps land below the fixed header */
+}
+.segment-header {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+}
+.segment-header h2 { margin: 0; font-size: 15px; flex: 1; }
+.expand-toggle { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--fg-secondary); }
+.badge {
+  font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 10px;
+  color: #1e2127; white-space: nowrap;
+}
+.badge-imports   { background: #61afef; }
+.badge-constants { background: #d19a66; }
+.badge-types     { background: #c678dd; }
+.badge-class     { background: #e5c07b; }
+.badge-function  { background: #98c379; }
+.badge-main      { background: #e06c75; }
+.badge-config    { background: #56b6c2; }
+.badge-other     { background: #abb2bf; }
+.segment-body { padding: 16px; }
+.segment-body.collapsed { display: none; }
+.segment-content { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+body.mode-code .explanation { display: none; }
+body.mode-code .segment-content { grid-template-columns: 1fr; }
+body.mode-explain .code-block { display: none; }
+body.mode-explain .segment-content { grid-template-columns: 1fr; }
+
+/* Code block */
+.code-block { border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; min-width: 0; }
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px; font-size: 12px; color: var(--fg-secondary);
+  background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color);
+}
+.copy-button {
+  padding: 3px 10px; font-size: 11px; cursor: pointer;
+  background: var(--bg-secondary); color: var(--fg-primary);
+  border: 1px solid var(--border-color); border-radius: 4px;
+}
+.code-lines { display: flex; overflow-x: auto; }
+.line-numbers { padding: 8px 10px; text-align: right; user-select: none; color: var(--fg-secondary); background: var(--bg-tertiary); }
+.code-content { padding: 8px 12px; flex: 1; }
+.line-numbers pre, .code-content pre, .code-content code {
+  margin: 0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Syntax highlighting (static spans embedded in the HTML) */
+.kw { color: var(--syntax-keyword); font-weight: bold; }
+.st { color: var(--syntax-string); }
+.cm { color: var(--syntax-comment); font-style: italic; }
+.nb { color: var(--syntax-number); }
+.fn { color: var(--syntax-function); }
+.bl { color: var(--syntax-builtin); }
+.de { color: var(--syntax-decorator); }
+.op { color: var(--syntax-operator); }
+
+/* Explanation */
+.explanation { min-width: 0; font-size: 14px; line-height: 1.85; }
+.explanation h3 { margin: 0 0 8px; font-size: 15px; }
+.explanation svg { width: 100%; max-width: 800px; height: auto; }
+
+/* Term underline */
+.term {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--syntax-function);
+  cursor: pointer;
+  color: inherit;
+}
+.term:hover { background: rgba(111, 66, 193, 0.10); }
+.term.active {
+  background: var(--syntax-function); color: #fff;
+  text-decoration-color: #fff; border-radius: 3px;
+}
+.term-sample {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--syntax-function);
+  text-underline-offset: 3px;
+}
+
+/* Glossary panel (fixed right, follows scroll) */
+.glossary-panel {
+  position: fixed; right: 0; top: var(--top-offset);
+  width: 340px; height: calc(100vh - var(--top-offset));
+  background: var(--bg-secondary); border-left: 1px solid var(--border-color);
+  display: flex; flex-direction: column; z-index: 998;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease-out; overflow: hidden;
+}
+.glossary-panel.hidden { transform: translateX(100%); box-shadow: none; pointer-events: none; }
+.glossary-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--border-color);
+}
+.glossary-header h3 { margin: 0; font-size: 14px; color: var(--fg-primary); }
+.glossary-close-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 18px; color: var(--fg-secondary); line-height: 1;
+}
+.glossary-body { padding: 16px; overflow-y: auto; flex: 1; }
+.glossary-hint { font-size: 13px; color: var(--fg-secondary); line-height: 1.7; }
+.glossary-term-name { font-size: 16px; font-weight: 700; color: var(--syntax-function); margin: 0 0 8px; }
+.glossary-term-desc { font-size: 13px; color: var(--fg-primary); line-height: 1.8; }
+.glossary-list { margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px; }
+.glossary-list h4 { font-size: 11px; color: var(--fg-secondary); margin: 0 0 8px; text-transform: uppercase; }
+.glossary-list-item {
+  display: block; padding: 5px 8px; margin-bottom: 2px; border-radius: 4px;
+  font-size: 12px; color: var(--fg-primary); cursor: pointer; border: none;
+  background: none; text-align: left; width: 100%;
+}
+.glossary-list-item:hover { background: var(--bg-tertiary); }
+.glossary-list-item.active { background: var(--syntax-function); color: #fff; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .sidebar.open { display: block; z-index: 1001; }
+  .main { margin-left: 0; }
+  .main.glossary-open { margin-right: 0; }
+  .segment-content { grid-template-columns: 1fr; }
+  .glossary-panel { width: 100%; }
+  .hamburger { display: block; }
+  .header h1 { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+  <div class="progress-bar" id="progressBar"></div>
+
+  <div class="header">
+    <h1>{{TITLE}}</h1>
+    <div class="header-controls">
+      <!-- UI-LABEL: translate all button labels into the request language -->
+      <button id="viewToggleCode" class="active">Code + Explanation</button>
+      <button id="viewToggleCodeOnly">Code Only</button>
+      <button id="viewToggleExplanationOnly">Explanation Only</button>
+      <button id="expandAllBtn">Expand</button>
+      <button id="collapseAllBtn">Collapse</button>
+      <button class="toc-toggle-btn" id="tocToggleBtn">Contents</button>
+      <button class="glossary-toggle-btn" id="glossaryToggleBtn">Glossary</button>
+      <button class="hamburger" id="hamburgerBtn">&#9776;</button>
+    </div>
+  </div>
+
+  <!-- MULTI-FILE ONLY: tab bar (delete this block in single-file mode)
+  <div class="tabs">
+    <div class="tab active" data-tab="a">file_a <span class="tab-meta">(role)</span></div>
+    <div class="tab" data-tab="b">file_b <span class="tab-meta">(role)</span></div>
+  </div>
+  -->
+
+  <div class="container">
+    <div class="sidebar" id="sidebar">
+      <!-- UI-LABEL -->
+      <h3>Contents</h3>
+      <div id="tocContainer">
+        <!-- TOC INSERTION POINT
+             Single-file: <a class="toc-link toc-link-imports" href="#segment-1">1. Title</a>
+             Multi-file: wrap per tab in <div class="toc-group active" data-file="a">...</div>
+                         and use href="#seg-a-1-key"
+                         onclick="event.preventDefault(); scrollToSeg('seg-a-1-key', 'a');" -->
+      </div>
+    </div>
+
+    <div class="main" id="mainContent">
+      <!-- SEGMENTS INSERTION POINT
+           Single-file: place <section class="segment"> elements directly.
+           Multi-file: wrap each file's segments in
+           <div class="tab-panel active" data-tab="a"> ... </div> (only the first tab has "active"). -->
+    </div>
+  </div>
+
+  <div class="glossary-panel" id="glossaryPanel">
+    <div class="glossary-header">
+      <!-- UI-LABEL -->
+      <h3>Glossary</h3>
+      <button class="glossary-close-btn" id="glossaryCloseBtn" title="Close">&times;</button>
+    </div>
+    <div class="glossary-body" id="glossaryBody">
+      <!-- UI-LABEL -->
+      <p class="glossary-hint">Click an <span class="term-sample">underlined term</span> in the commentary to see its overview here.</p>
+      <div class="glossary-list" id="glossaryList"></div>
+    </div>
+  </div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Glossary data. Keys always in quotes; same keys as data-term in the body.
+// ---------------------------------------------------------------------------
+const GLOSSARY = {
+  // {{GLOSSARY ENTRIES}} e.g.
+  // "idempotent": { term: "Idempotent", desc: "..." },
+};
+
+// UI-LABEL: translate these strings into the request language.
+const UI_TEXT = { copy: 'Copy', copied: 'Copied!', termList: 'Term list' };
+
+// ---------------------------------------------------------------------------
+// Progress bar
+// ---------------------------------------------------------------------------
+function updateProgressBar() {
+  const doc = document.documentElement;
+  const max = doc.scrollHeight - doc.clientHeight;
+  document.getElementById('progressBar').style.width = (max > 0 ? (doc.scrollTop / max * 100) : 0) + '%';
+}
+window.addEventListener('scroll', updateProgressBar);
+
+// ---------------------------------------------------------------------------
+// Tabs (multi-file only; every function no-ops when no .tabs element exists)
+// ---------------------------------------------------------------------------
+let currentTab = null;
+const firstTab = document.querySelector('.tab.active');
+if (firstTab) currentTab = firstTab.dataset.tab;
+
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.tab === tab));
+  document.querySelectorAll('.toc-group').forEach(g => g.classList.toggle('active', g.dataset.file === tab));
+  window.scrollTo({ top: 0, behavior: 'auto' });
+  updateProgressBar();
+}
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => setTab(t.dataset.tab));
+});
+
+// TOC link scroll with automatic tab switching (multi-file TOC links call this)
+function scrollToSeg(id, file) {
+  if (file && file !== currentTab) setTab(file);
+  requestAnimationFrame(() => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// View modes: default (both) / code only / explanation only
+// ---------------------------------------------------------------------------
+const viewButtons = {
+  '': document.getElementById('viewToggleCode'),
+  'mode-code': document.getElementById('viewToggleCodeOnly'),
+  'mode-explain': document.getElementById('viewToggleExplanationOnly')
+};
+function setViewMode(mode) {
+  document.body.classList.remove('mode-code', 'mode-explain');
+  if (mode) document.body.classList.add(mode);
+  Object.keys(viewButtons).forEach(m => viewButtons[m].classList.toggle('active', m === mode));
+}
+viewButtons[''].addEventListener('click', () => setViewMode(''));
+viewButtons['mode-code'].addEventListener('click', () => setViewMode('mode-code'));
+viewButtons['mode-explain'].addEventListener('click', () => setViewMode('mode-explain'));
+
+// ---------------------------------------------------------------------------
+// Expand / collapse (per segment + bulk buttons scoped to the active tab)
+// ---------------------------------------------------------------------------
+function setToggleArrow(segment) {
+  const collapsed = segment.querySelector('.segment-body').classList.contains('collapsed');
+  segment.querySelector('.expand-toggle').innerHTML = collapsed ? '&#9654;' : '&#9660;';
+}
+document.querySelectorAll('.segment-header').forEach(header => {
+  header.addEventListener('click', (e) => {
+    if (e.target.closest('.copy-button')) return;
+    const segment = header.closest('.segment');
+    segment.querySelector('.segment-body').classList.toggle('collapsed');
+    setToggleArrow(segment);
+  });
+});
+function setAllSegments(collapsed) {
+  const scope = document.querySelector('.tab-panel.active') || document;
+  scope.querySelectorAll('.segment').forEach(segment => {
+    segment.querySelector('.segment-body').classList.toggle('collapsed', collapsed);
+    setToggleArrow(segment);
+  });
+}
+document.getElementById('expandAllBtn').addEventListener('click', () => setAllSegments(false));
+document.getElementById('collapseAllBtn').addEventListener('click', () => setAllSegments(true));
+
+// ---------------------------------------------------------------------------
+// Copy buttons
+// ---------------------------------------------------------------------------
+document.querySelectorAll('.copy-button').forEach(btn => {
+  btn.textContent = UI_TEXT.copy;
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const code = btn.closest('.code-block').querySelector('.code-content code');
+    navigator.clipboard.writeText(code.innerText).then(() => {
+      btn.textContent = UI_TEXT.copied;
+      setTimeout(() => { btn.textContent = UI_TEXT.copy; }, 1500);
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Sidebar: header toggle + mobile hamburger
+// ---------------------------------------------------------------------------
+document.getElementById('tocToggleBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('hidden');
+  document.getElementById('mainContent').classList.toggle('toc-hidden');
+});
+document.getElementById('hamburgerBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+// ---------------------------------------------------------------------------
+// TOC: highlight the currently visible segment
+// ---------------------------------------------------------------------------
+const tocObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    document.querySelectorAll('.toc-link.active').forEach(l => l.classList.remove('active'));
+    const link = document.querySelector('.toc-link[href="#' + entry.target.id + '"]');
+    if (link) link.classList.add('active');
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+document.querySelectorAll('.segment').forEach(s => tocObserver.observe(s));
+
+// ---------------------------------------------------------------------------
+// Glossary panel
+// ---------------------------------------------------------------------------
+class GlossarySystem {
+  constructor() {
+    this.panel = document.getElementById('glossaryPanel');
+    this.body = document.getElementById('glossaryBody');
+    this.main = document.getElementById('mainContent');
+    this.activeTerm = null;
+
+    document.addEventListener('click', (e) => {
+      const span = e.target.closest('.term');
+      if (span && span.dataset.term) this.show(span.dataset.term, span);
+    });
+    document.getElementById('glossaryToggleBtn').addEventListener('click', () => this.toggle());
+    document.getElementById('glossaryCloseBtn').addEventListener('click', () => this.close());
+
+    this.renderList();
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      this.panel.classList.add('hidden');
+    } else {
+      this.main.classList.add('glossary-open');
+    }
+  }
+
+  renderList() {
+    const list = document.getElementById('glossaryList');
+    if (!list) return;
+    list.innerHTML = '<h4>' + UI_TEXT.termList + '</h4>';
+    Object.keys(GLOSSARY).forEach(key => {
+      const btn = document.createElement('button');
+      btn.className = 'glossary-list-item';
+      btn.dataset.term = key;
+      btn.textContent = GLOSSARY[key].term;
+      btn.addEventListener('click', () => this.show(key));
+      list.appendChild(btn);
+    });
+  }
+
+  show(key) {
+    const entry = GLOSSARY[key];
+    if (!entry) return;
+    this.panel.classList.remove('hidden');
+    if (!window.matchMedia('(max-width: 768px)').matches) this.main.classList.add('glossary-open');
+
+    this.body.innerHTML = '<p class="glossary-term-name"></p><p class="glossary-term-desc"></p>';
+    this.body.querySelector('.glossary-term-name').textContent = entry.term;
+    this.body.querySelector('.glossary-term-desc').textContent = entry.desc;
+
+    document.querySelectorAll('.term.active, .glossary-list-item.active').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.term[data-term="' + key + '"], .glossary-list-item[data-term="' + key + '"]').forEach(el => el.classList.add('active'));
+    this.activeTerm = key;
+  }
+
+  toggle() {
+    const willHide = !this.panel.classList.contains('hidden');
+    this.panel.classList.toggle('hidden');
+    if (!window.matchMedia('(max-width: 768px)').matches) {
+      this.main.classList.toggle('glossary-open', !willHide);
+    }
+  }
+
+  close() {
+    this.panel.classList.add('hidden');
+    this.main.classList.remove('glossary-open');
+  }
+}
+const glossary = new GlossarySystem();
+updateProgressBar();
+</script>
+</body>
+</html>

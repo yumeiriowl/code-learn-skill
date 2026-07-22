@@ -19,6 +19,7 @@ For complex processing flows, architectures, and data flows, insert inline SVG d
    </defs>
    ```
 6. When there are multiple SVGs in the same HTML, make the marker ids unique (`arrowhead1`, `arrowhead2`, etc.)
+7. **Draw loop-back arrows dashed** with `stroke-dasharray="5,5"` to distinguish them from forward flow
 
 ### SVG CSS class definitions (write in each SVG's `<style>`)
 

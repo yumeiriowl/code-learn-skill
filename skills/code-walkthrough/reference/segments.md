@@ -68,6 +68,7 @@ Write the commentary at a level of detail where the reader can concretely pictur
 
 ## Checklist
 
+### Code embedding
 
 - [ ] Include the full code in the HTML. Do not omit or excerpt
 - [ ] Embed the code as static HTML inside `<pre><code>` tags. Do not use JS template literals (backticks)
@@ -81,5 +82,3 @@ Write the commentary at a level of detail where the reader can concretely pictur
 - [ ] Insert an SVG flow diagram for complex processing
 - [ ] Describe the data flow (input → processing → output) concretely
 - [ ] Underline technical terms that require specialized knowledge with `<span class="term">`, and register their overviews in `GLOSSARY` (see "Glossary panel")
-
-

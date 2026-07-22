@@ -40,11 +40,11 @@ Passing two or more source files switches to multi-file mode, combining them int
 5. For each file, write the commentary following "Segment splitting rules" and "Structure of each segment". In environments where web search is available, when a library, API, or spec you use is new / your knowledge is stale / you are unsure, check the official docs before writing the commentary.
    - Identify "technical terms that even a general engineer would find hard to understand without specialized knowledge" appearing in the commentary, underline them with `<span class="term">` following `reference/glossary-panel.md`, and register their overviews in `GLOSSARY`.
    - When you diagram a processing flow with SVG, run the "SVG verification phase" in `reference/svg.md` every time you make a diagram, and confirm that all arrows connect to their targets before moving on to the next segment.
-6. Assemble and output the HTML:
-   - Single file: use the layout structure in "HTML generation rules"
-   - Multiple files: add `<div class="tabs">` and tab panels following "Multi-file tab spec"
-   - Incorporate the glossary panel following `reference/glossary-panel.md`
-   - When the output exceeds what can be written out at once (files over 500 lines / a large combined total across multiple files): generate and run `gen_walkthrough.py` under a temporary directory (`/tmp`, `$TMPDIR`, or on Windows `%TEMP%`, whichever path fits the environment) to produce the HTML
+6. Assemble and output the HTML, starting from the bundled template:
+   - Copy `assets/template.html` to the output path and fill its placeholders following `reference/html-layout.md`. The CSS/JS (layout, interactive features, glossary panel, tab switching) is already implemented in the template — do not rewrite it
+   - Multiple files: additionally follow `reference/multi-file-tabs.md`
+   - Register the glossary terms following `reference/glossary-panel.md`
+   - When the output exceeds what can be written out at once (files over 500 lines / a large combined total across multiple files): generate and run `gen_walkthrough.py` under a temporary directory (`/tmp`, `$TMPDIR`, or on Windows `%TEMP%`, whichever path fits the environment) that fills the template and writes the HTML
 7. Open it in the browser with "Browser display command".
 
 ## Reference (read when needed)
@@ -55,10 +55,12 @@ The detailed spec is split into `reference/`. Read the relevant file at the poin
 |---|---|---|
 | `reference/segments.md` | Segment splitting rules, structure of each segment, checklist for code embedding/commentary | When splitting the code and writing commentary (execution step 5) |
 | `reference/svg.md` | SVG diagram generation rules, CSS classes, SVG verification phase, checklist | When diagramming a complex processing flow, after making the diagram (execution step 5) |
-| `reference/html-layout.md` | HTML generation rules, CSS variables, syntax highlighting, layout structure | When assembling the HTML (execution step 6) |
-| `reference/multi-file-tabs.md` | Multi-file tab spec (HTML/CSS/JS) | When there are two or more sources (execution step 6, multi-file case) |
-| `reference/interactive.md` | Interactive features (TOC, progress bar, view modes, expand/collapse, copy) | When implementing UI behavior |
-| `reference/glossary-panel.md` | Glossary panel (HTML/CSS/JS, term underlining, scroll following) | When implementing term underlining and the glossary panel (execution steps 5 and 6) |
+| `reference/html-layout.md` | How to fill `assets/template.html`, segment markup, syntax highlighting, large-file handling | When assembling the HTML (execution step 6) |
+| `reference/multi-file-tabs.md` | Multi-file tab spec (template steps, naming rules) | When there are two or more sources (execution step 6, multi-file case) |
+| `reference/interactive.md` | Expected behavior of the template's interactive features | When verifying the output's UI behavior |
+| `reference/glossary-panel.md` | Term underlining and `GLOSSARY` registration | When underlining terms and registering the glossary (execution steps 5 and 6) |
+
+The template `assets/template.html` implements the page skeleton, CSS, and all interactive JS; the generated HTML must start from it rather than hand-written CSS/JS.
 
 ## Browser display command
 

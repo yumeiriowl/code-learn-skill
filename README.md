@@ -93,6 +93,8 @@ code-learn-skill/
 └── skills/
     ├── code-walkthrough/
     │   ├── SKILL.md
+    │   ├── assets/
+    │   │   └── template.html     # ready-made page skeleton (CSS/JS); only placeholders are filled per run
     │   └── reference/            # detailed spec (loaded on demand)
     │       ├── segments.md
     │       ├── html-layout.md
@@ -101,7 +103,10 @@ code-learn-skill/
     │       ├── glossary-panel.md
     │       └── svg.md
     └── staged-learning-code/
-        └── SKILL.md
+        ├── SKILL.md
+        └── assets/
+            ├── entrypoint_template.py   # per-folder entry-point skeleton
+            └── readme_template.md       # per-folder README skeleton
 ```
 
 ## 📄 License

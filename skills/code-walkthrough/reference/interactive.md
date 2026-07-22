@@ -1,62 +1,18 @@
 # Code Walkthrough — Interactive features
 
-## Interactive features
+All interactive behavior is already implemented in `assets/template.html`. Do not re-implement or remove it. This file lists the expected behavior so you can verify the output.
 
-### 1. Fixed sidebar TOC
+| Feature | Behavior |
+|---|---|
+| Fixed sidebar TOC | Fixed left at 280px (`position: fixed`, does not scroll with the body). The visible segment is highlighted via IntersectionObserver. Hidden at 768px and below; opened via the hamburger button |
+| TOC toggle | The "Contents" header button hides/shows the sidebar; the body becomes full width when hidden |
+| Progress bar | Fixed at the very top; width follows the scroll position |
+| View modes | "Code + Explanation" (default) / "Code Only" / "Explanation Only" |
+| Expand/collapse | Clicking a segment header toggles it; "Expand"/"Collapse" buttons toggle all segments (active tab only in multi-file mode) |
+| Copy button | Top right of each code block; copies the code text to the clipboard |
+| Smooth scrolling | TOC links scroll smoothly; segments have `scroll-margin-top` so anchors land below the fixed header |
 
-- Fixed on the left at 280px (on desktop)
-- Links to each segment (with the color code of the segment-type badge)
-- Highlight the currently visible segment with IntersectionObserver
-- On mobile, open/close it via a hamburger menu
+What you still provide:
 
-Fix the sidebar with `position: fixed`. Do not use `position: sticky` or normal flow, because the table of contents would be dragged along with the body scroll and move together with it (align it with the glossary panel's same `position: fixed`). Since it is fixed and overlaps the page content, add `margin-left: 280px` to `.main` to make room for the body.
-
-```css
-.sidebar{
-  position: fixed; top: 60px; left: 0;   /* top is the header height. 88px in the multi-file case */
-  width: 280px; height: calc(100vh - 60px);
-  overflow-y: auto;                      /* If the TOC is long, scroll only within the sidebar */
-}
-.main{ margin-left: 280px; }             /* Make room for the width of the fixed sidebar */
-@media (max-width: 768px){
-  .sidebar{ display: none; }
-  .main{ margin-left: 0; }
-}
-```
-
-### 1b. TOC display toggle
-
-Open/close the sidebar with the "Contents" button (`#tocToggleBtn`) in the header. When closed, reset `.main`'s `margin-left` to 0 to make the body full width. The initial state on desktop is shown.
-
-```css
-.sidebar.hidden{ display: none; }
-.main.toc-hidden{ margin-left: 0; }
-```
-
-```javascript
-document.getElementById('tocToggleBtn').addEventListener('click', () => {
-  document.getElementById('sidebar').classList.toggle('hidden');
-  document.getElementById('mainContent').classList.toggle('toc-hidden');
-});
-```
-
-### 2. Scroll-linked progress bar
-
-- Fixed at the very top of the page
-- The width changes according to the scroll position
-
-### 3. View mode switching
-
-Three modes: "Code + Explanation" (default) / "Code Only" / "Explanation Only"
-
-### 4. Expand all / collapse all
-
-Individual toggle by clicking each segment's header + a bulk button
-
-### 5. Copy button
-
-A copy button at the top right of each code block. Uses `navigator.clipboard.writeText()`.
-
-### 6. Smooth scrolling
-
-`html { scroll-behavior: smooth; }` + `scrollIntoView({ behavior: 'smooth' })`
+- Static TOC links at the `TOC INSERTION POINT` (one per segment; multi-file links use `scrollToSeg`, see `reference/multi-file-tabs.md`)
+- The initial expand state: render every `segment-body` expanded (no `collapsed` class)
