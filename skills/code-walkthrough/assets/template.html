@@ -332,8 +332,10 @@ body.mode-explain .segment-content { grid-template-columns: 1fr; }
       <button class="glossary-close-btn" id="glossaryCloseBtn" title="Close">&times;</button>
     </div>
     <div class="glossary-body" id="glossaryBody">
-      <!-- UI-LABEL -->
-      <p class="glossary-hint">Click an <span class="term-sample">underlined term</span> in the commentary to see its overview here.</p>
+      <div id="glossaryDetail">
+        <!-- UI-LABEL -->
+        <p class="glossary-hint">Click an <span class="term-sample">underlined term</span> in the commentary to see its overview here.</p>
+      </div>
       <div class="glossary-list" id="glossaryList"></div>
     </div>
   </div>
@@ -475,7 +477,7 @@ document.querySelectorAll('.segment').forEach(s => tocObserver.observe(s));
 class GlossarySystem {
   constructor() {
     this.panel = document.getElementById('glossaryPanel');
-    this.body = document.getElementById('glossaryBody');
+    this.detail = document.getElementById('glossaryDetail');
     this.main = document.getElementById('mainContent');
     this.activeTerm = null;
 
@@ -514,9 +516,9 @@ class GlossarySystem {
     this.panel.classList.remove('hidden');
     if (!window.matchMedia('(max-width: 768px)').matches) this.main.classList.add('glossary-open');
 
-    this.body.innerHTML = '<p class="glossary-term-name"></p><p class="glossary-term-desc"></p>';
-    this.body.querySelector('.glossary-term-name').textContent = entry.term;
-    this.body.querySelector('.glossary-term-desc').textContent = entry.desc;
+    this.detail.innerHTML = '<p class="glossary-term-name"></p><p class="glossary-term-desc"></p>';
+    this.detail.querySelector('.glossary-term-name').textContent = entry.term;
+    this.detail.querySelector('.glossary-term-desc').textContent = entry.desc;
 
     document.querySelectorAll('.term.active, .glossary-list-item.active').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.term[data-term="' + key + '"], .glossary-list-item[data-term="' + key + '"]').forEach(el => el.classList.add('active'));
